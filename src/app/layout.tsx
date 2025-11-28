@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import OfferSlider from "./components/OfferSlider";
+import BottomNav from "./components/BottomNav";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,12 +27,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* <Navbar />
+        <BottomNav />
         {children}
+        <Footer /> */}
+        <ThemeProvider attribute="class" defaultTheme="dark">
+  <Navbar />
+  {children}
+  <BottomNav />
+  <Footer />
+</ThemeProvider>
+
       </body>
     </html>
   );
