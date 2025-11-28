@@ -1,69 +1,3 @@
-
-// import { create } from "zustand";
-// import { persist } from "zustand/middleware";
-
-// export type CartItem = {
-//   id: string | number;
-//   name: string;
-//   price: number;
-//   qty: number;
-//   img?: string;
-//   meta?: Record<string, any>;
-// };
-
-// type CartState = {
-//   items: CartItem[];
-//   addItem: (item: Omit<CartItem, "qty">, qty?: number) => void;
-//   removeItem: (id: CartItem["id"]) => void;
-//   setQty: (id: CartItem["id"], qty: number) => void;
-//   clearCart: () => void;
-//   totalItems: () => number;
-//   totalPrice: () => number;
-// };
-
-// const safeStorage =
-//   typeof window !== "undefined"
-//     ? window.localStorage
-//     : {
-//         getItem: (_: string) => null,
-//         setItem: (_: string, __: string) => {},
-//         removeItem: (_: string) => {},
-//       };
-
-// export const useCartStore = create<CartState>()(
-//   persist(
-//     (set, get) => ({
-//       items: [],
-//       addItem: (item, qty = 1) =>
-//         set((state) => {
-//           const exists = state.items.find((i) => i.id === item.id);
-//           if (exists) {
-//             return {
-//               items: state.items.map((i) =>
-//                 i.id === item.id ? { ...i, qty: i.qty + qty } : i
-//               ),
-//             };
-//           }
-//           return { items: [...state.items, { ...item, qty }] };
-//         }),
-//       removeItem: (id) =>
-//         set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
-//       setQty: (id, qty) =>
-//         set((state) => ({
-//           items: state.items.map((i) => (i.id === id ? { ...i, qty } : i)),
-//         })),
-//       clearCart: () => set({ items: [] }),
-//       totalItems: () => get().items.reduce((s, i) => s + i.qty, 0),
-//       totalPrice: () => get().items.reduce((s, i) => s + i.qty * i.price, 0),
-//     }),
-//     {
-//       name: "scentsworld-cart",
-//       getStorage: () => safeStorage,
-//     }
-//   )
-// );
-
-
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -88,15 +22,16 @@ type CartState = {
   syncCount: () => void;
 };
 
-// ✅ Guaranteed storage object for SSR safety
+// ✅ Safe storage for SSR + correct types
 const storage = {
   getItem: (key: string) => {
     if (typeof window === "undefined") return null;
-    return window.localStorage.getItem(key);
+    const value = window.localStorage.getItem(key);
+    return value ? JSON.parse(value) : null;
   },
-  setItem: (key: string, value: string) => {
+  setItem: (key: string, value: any) => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(key, value);
+    window.localStorage.setItem(key, JSON.stringify(value));
   },
   removeItem: (key: string) => {
     if (typeof window === "undefined") return;
@@ -118,7 +53,6 @@ export const useCartStore = create<CartState>()(
                 i.id === item.id ? { ...i, qty: i.qty + qty } : i
               )
             : [...state.items, { ...item, qty }];
-
           return { items: updated, count: updated.reduce((s, i) => s + i.qty, 0) };
         }),
 
@@ -139,13 +73,12 @@ export const useCartStore = create<CartState>()(
       totalItems: () => get().items.reduce((s, i) => s + i.qty, 0),
       totalPrice: () => get().items.reduce((s, i) => s + i.qty * i.price, 0),
 
-      // Handy method to resync count from items if needed
       syncCount: () =>
         set({ count: get().items.reduce((s, i) => s + i.qty, 0) }),
     }),
     {
       name: "scentsworld-cart",
-      storage: storage, // ✅ No getStorage(), direct safe storage
+      storage, // ✅ compatible with zustand persist
       onRehydrateStorage: () => (state) => {
         if (state) state.syncCount();
       },

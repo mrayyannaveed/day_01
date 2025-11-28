@@ -1,4 +1,4 @@
-import Image from "next/image";
+
 import Hero from "./components/Hero";
 import ProductGrid from "./components/ProductGrid";
 

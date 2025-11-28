@@ -8,12 +8,11 @@ import { ThemeProvider, useTheme } from "next-themes";
 import { useCartStore } from "@/store/cartStore";
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [cartCounts, setCartCounts] = useState(2);
+  // const [cartCounts, setCartCounts] = useState(2);
   const [searchOpen, setSearchOpen] = useState(false);
   const [shopDropdown, setShopDropdown] = useState(false);
 
   const { theme, setTheme } = useTheme();
-  // const cartCount = useCartStore((state) => state.totalItems());
   const cartCount = useCartStore((state) => state.count);
 
 
