@@ -9,6 +9,15 @@
 
 export default {
   images: {
-    domains: ["cdn.example.com"], // replace when needed
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.example.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+      },
+    ],
   },
 };
